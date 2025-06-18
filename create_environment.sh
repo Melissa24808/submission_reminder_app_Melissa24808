@@ -66,3 +66,14 @@ echo '
 ASSIGNMENT="Shell Navigation"
 DAYS_REMAINING=2
 ' >> $DIR/config/config.env
+echo '
+#!/bin/bash
+
+bash ./app/reminder.sh
+' >> $DIR/startup.sh
+
+# Filtering '.sh' files to add the the execution command to it
+
+chmod +x "$DIR/app/reminder.sh"
+chmod +x "$DIR/modules/functions.sh"
+chmod +x "$DIR/startup.sh"
