@@ -1,17 +1,50 @@
 #!/bin/bash
 # We have to ask the user to input the his/her name (Will be needed to create the folder)                                             
-read -p "Enter your name: " yourName
-DIR="submission_reminder_$yourName"
-mkdir -p "$DIR"
-mkdir -p "$DIR/app"
-mkdir -p "$DIR/modules"
-mkdir -p "$DIR/assets"
-mkdir -p "$DIR/config"
-touch "$DIR/app/reminder.sh"
-touch "$DIR/modules/functions.sh"
-touch "$DIR/assets/submissions.txt"
-touch "$DIR/config/config.env"
-touch "$DIR/startup.sh"
+read -p "name: " yourName
+
+if [ -z "$yourName" ]; then
+        echo "please i need your name."
+        echo "---------------------------"
+        echo "delete..."
+        echo "--- --- --- --- --- --- ---"
+        exit 1
+fi
+
+# Name not a number
+
+if ! [[ "$yourName" =~ ^[a-zA-Z\s]+$ ]]; then
+    echo "The inputed name must contain only letters."
+    echo "delete..."
+    exit 1
+fi
+
+Dir="submission_reminder_$yourName"
+
+if [ -d "$Dir" ]; then
+        echo "Directory  exists."
+        echo "-------------------------"
+        echo "delete"
+        echo "-------------------------"
+        exit 1
+else
+        mkdir -p "$Dir"
+        echo " Directory  created successfully."
+        echo "---------------------------------------"
+        echo " Finalising of  the environment"
+        
+fi
+
+mkdir -p "$Dir/app"
+mkdir -p "$Dir/modules"
+mkdir -p "$Dir/assets"
+mkdir -p "$Dir/config"
+
+[ ! -f "$Dir/app/reminder.sh" ] && touch "$Dir/app/reminder.sh"
+[ ! -f "$Dir/modules/functions.sh" ] && touch "$Dir/modules/functions.sh"
+[ ! -f "$Dir/assets/submissions.txt" ] && touch "$Dir/assets/submissions.txt"
+[ ! -f "$Dir/config/config.env" ] && touch "$Dir/config/config.env"
+[ ! -f "$Dir/startup.sh" ] && touch "$Dir/startup.sh"
+
 echo '
 #!/bin/bash
 
@@ -28,7 +61,7 @@ echo "Days remaining to submit: $DAYS_REMAINING days"
 echo "--------------------------------------------"
 
 check_submissions $submissions_file
-' >> $DIR/app/reminder.sh
+' >> $Dir/app/reminder.sh
 
 echo '
 #!/bin/bash
@@ -51,7 +84,7 @@ function check_submissions {
         fi
     done < <(tail -n +2 "$submissions_file") # Skip the header
 }
-' >> $DIR/modules/functions.sh
+' >> $Dir/modules/functions.sh
 
 echo '
 student, assignment, submission status
@@ -59,21 +92,30 @@ Chinemerem, Shell Navigation, not submitted
 Chiagoziem, Git, submitted
 Divine, Shell Navigation, not submitted
 Anissa, Shell Basics, submitted
-' >> $DIR/assets/submissions.txt
+' >> $Dir/assets/submissions.txt
 
 echo '
 # This is the config file
 ASSIGNMENT="Shell Navigation"
 DAYS_REMAINING=2
-' >> $DIR/config/config.env
+' >> $Dir/config/config.env
+
+cat <<EOL >> "$Dir/assets/submissions.txt"
+Melissa, Git, not submitted
+Axel, Shell Navigation, submitted
+Arnaud, Git, not submitted
+Lambert, Shell Basics, not submitted
+Kenza, Shell Navigation, submitted
+EOL
+
 echo '
 #!/bin/bash
-
+cd "$(dirname "$0")"
 bash ./app/reminder.sh
-' >> $DIR/startup.sh
+' >> $Dir/startup.sh
 
 # Filtering '.sh' files to add the the execution command to it
 
-chmod +x "$DIR/app/reminder.sh"
-chmod +x "$DIR/modules/functions.sh"
-chmod +x "$DIR/startup.sh"
+chmod +x "$Dir/app/reminder.sh"
+chmod +x "$Dir/modules/functions.sh"
+chmod +x "$Dir/startup.sh"
